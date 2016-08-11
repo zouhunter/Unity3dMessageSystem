@@ -65,10 +65,11 @@ namespace MessageSystem.Core
                 }
             }
         }
+
         public void SendMessage(IMessage rMessage)
         {
             bool lReportMissingRecipient = true;
-
+            
             // Hold the message for the delay or the next frame (< 0)
             if (rMessage.Delay > 0 || rMessage.Delay < 0)
             {
@@ -86,13 +87,25 @@ namespace MessageSystem.Core
                 if (property != null)
                 {
                     var data = property.GetValue(rMessage, null);
-
-                    NeedHandle[rMessage.Key].DynamicInvoke(data);
+                    try
+                    {
+                        NeedHandle[rMessage.Key].DynamicInvoke(data);
+                    }
+                    catch
+                    {
+                        Debug.LogWarning(rMessage.Key + "参数类型不符");
+                    }
                 }
                 else
                 {
-                    NeedHandle[rMessage.Key].DynamicInvoke();
-
+                    try
+                    {
+                        NeedHandle[rMessage.Key].DynamicInvoke();
+                    }
+                    catch
+                    {
+                        Debug.LogWarning(rMessage.Key + "缺少参数");
+                    }
                 }
                 lReportMissingRecipient = false;
             }
