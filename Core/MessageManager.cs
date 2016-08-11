@@ -63,19 +63,43 @@ namespace MessageSystem
             }
         }
 
-        public void AddListener(string key,Delegate handle)
+        public void AddListener(string key, UnityAction handle)
         {
             receiver.AddListener(key, handle);
         }
-
-        public void RemoveListener(string key)
+        public void AddListener<T>(string key,UnityAction<T> handle)
         {
-            receiver.RemoveListener(key);
+            receiver.AddListener(key, handle);
         }
-
+        public void RemoveListener<T>(string key,UnityAction<T> handle)
+        {
+            receiver.RemoveListener<T>(key,handle);
+        }
+        public void RemoveListener(string key, UnityAction handle)
+        {
+            receiver.RemoveListener(key, handle);
+        }
+        public void RemoveAllListener(string key)
+        {
+            receiver.RemoveAllListener(key);
+        }
         public void NotifyObserver<T>(string key,T data,float delay = 0)
         {
             Message<T> message = Message<T>.Allocate(key,data,delay);
+
+            if (message.Delay == 0)
+            {
+                sender.SendMessage(message);
+                message.Release();
+            }
+            else if (message.Delay < 0 || message.Delay > 0)
+            {
+                delyMessages.Add(message);
+            }
+        }
+        public void NotifyObserver(string key,float delay = 0)
+        {
+            Message message = Message.Allocate(key, delay);
 
             if (message.Delay == 0)
             {

@@ -10,10 +10,10 @@ using MessageSystem.Core;
 
 namespace MessageSystem.Core
 {
-    public class MessageSender:IMessageSender
+    public class MessageSender : IMessageSender
     {
         MessageManager manager;
-         Dictionary<string, Delegate> NeedHandle
+        Dictionary<string, Delegate> NeedHandle
         {
             get { return manager.m_needHandle; }
         }
@@ -82,7 +82,18 @@ namespace MessageSystem.Core
             // Send the message now if there are handlers
             else if (NeedHandle.ContainsKey(rMessage.Key))
             {
-                NeedHandle[rMessage.Key].DynamicInvoke(rMessage.GetType().GetProperty("Data").GetValue(rMessage, null));
+                var property = rMessage.GetType().GetProperty("Data");
+                if (property != null)
+                {
+                    var data = property.GetValue(rMessage, null);
+
+                    NeedHandle[rMessage.Key].DynamicInvoke(data);
+                }
+                else
+                {
+                    NeedHandle[rMessage.Key].DynamicInvoke();
+
+                }
                 lReportMissingRecipient = false;
             }
 
