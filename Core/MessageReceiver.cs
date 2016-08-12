@@ -20,15 +20,7 @@ namespace MessageSystem.Core
         {
             this.manager = manager;
         }
-        public void AddListener(string key,UnityAction handle)
-        {
-            AddDelegate(key, handle);
-        }
-        public void AddListener<T>(string key, UnityAction<T> handle)
-        {
-            AddDelegate(key, handle);
-        }
-        private void AddDelegate(string key, Delegate handle)
+        public void AddDelegate(string key, Delegate handle)
         {
             // First check if we know about the message type
             if (!NeedHandle.ContainsKey(key))
@@ -40,22 +32,18 @@ namespace MessageSystem.Core
                 NeedHandle[key] = Delegate.Combine(NeedHandle[key], handle);
             }
         }
-        public void RemoveListener<T>(string key, UnityAction<T> handle)
-        {
-            RemoveDelegate(key, handle);
-        }
-        public void RemoveListener(string key,UnityAction handle)
-        {
-            RemoveDelegate(key, handle);
-        }
-        private void RemoveDelegate(string key, Delegate handle)
+        public void RemoveDelegate(string key, Delegate handle)
         {
             if (NeedHandle.ContainsKey(key))
             {
-                Delegate.Remove(NeedHandle[key], handle);
+                NeedHandle[key] = Delegate.Remove(NeedHandle[key], handle);
+                if(NeedHandle[key] == null)
+                {
+                    NeedHandle.Remove(key);
+                }
             }
         }
-        public void RemoveAllListener(string key)
+        public void RemoveAllDelegate(string key)
         {
             if (NeedHandle.ContainsKey(key))
             {

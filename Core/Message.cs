@@ -10,6 +10,118 @@ using Collections;
 
 namespace MessageSystem.Core
 {
+    public class Message<T,S> : IMessage<T,S>
+    {
+        protected string m_Key;
+        public string Key
+        {
+            get { return m_Key; }
+            set { m_Key = value; }
+        }
+
+        protected float mDelay = 0;
+        public float Delay
+        {
+            get { return mDelay; }
+            set { mDelay = value; }
+        }
+
+        protected T mDataT;
+        public T DataT
+        {
+            get { return mDataT; }
+            set { mDataT = value; }
+        }
+        protected S mDataS;
+        public S DataS
+        {
+            get { return mDataS; }
+            set { mDataS = value; }
+        }
+
+        protected bool mIsSent = false;
+        public bool IsSent
+        {
+            get { return mIsSent; }
+            set { mIsSent = value; }
+        }
+
+        protected bool mIsHandled = false;
+        public bool IsHandled
+        {
+            get { return mIsHandled; }
+            set { mIsHandled = value; }
+        }
+
+        /// <summary>
+        /// Clear this instance.
+        /// </summary>
+        public virtual void Clear()
+        {
+            m_Key = null;
+            mIsSent = false;
+            DataT = default(T);
+            DataS = default(S);
+            mIsHandled = false;
+            mDelay = 0.0f;
+        }
+
+        // ******************************** OBJECT POOL ********************************
+
+        /// <summary>
+        /// Allows us to reuse objects without having to reallocate them over and over
+        /// </summary>
+        private static ObjectPool<Message<T,S>> sPool = new ObjectPool<Message<T,S>>(1, 1);
+
+        //public static int Length { get { return sPool.Length; } }
+        /// <summary>
+        /// Pulls an object from the pool.
+        /// </summary>
+        /// <returns></returns>
+        public static Message<T,S> Allocate(string key, T datat,S datas, float delay)
+        {
+            // Grab the next available object
+            Message<T,S> lInstance = sPool.Allocate();
+
+            lInstance.Key = key;
+            lInstance.DataT = datat;
+            lInstance.DataS = datas;
+            lInstance.Delay = delay;
+
+            // Reset the sent flags. We do this so messages are flagged as 'completed'
+            // by default.
+            lInstance.IsSent = false;
+            lInstance.IsHandled = false;
+
+            // For this type, guarentee we have something
+            // to hand back tot he caller
+            if (lInstance == null) { lInstance = new Message<T,S>(); }
+            return lInstance;
+        }
+        /// <summary>
+        /// Returns an element back to the pool.
+        /// </summary>
+        /// <param name="rEdge"></param>
+        public void Release()
+        {
+            if (this == null) { return; }
+
+            // We should never release an instance unless we're
+            // sure we're done with it. So clearing here is fine
+            Clear();
+
+            // Reset the sent flags. We do this so messages are flagged as 'completed'
+            // and removed by default.
+            IsSent = true;
+            IsHandled = true;
+
+            // Make it available to others.
+            if (this is Message<T,S>)
+            {
+                sPool.Release((Message<T,S>)this);
+            }
+        }
+    }
     public class Message<T> : IMessage<T>
     {
         protected string m_Key;

@@ -10,7 +10,6 @@ namespace MessageSystem.Interface
 {
     public interface IMessageSender
     {
-        void SendMessage<T>(IMessage<T> rMessage);
         void SendMessage(IMessage rMessage);
     }
 }

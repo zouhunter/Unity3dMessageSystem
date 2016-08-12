@@ -65,23 +65,39 @@ namespace MessageSystem
 
         public void AddListener(string key, UnityAction handle)
         {
-            receiver.AddListener(key, handle);
-        }
-        public void AddListener<T>(string key,UnityAction<T> handle)
-        {
-            receiver.AddListener(key, handle);
-        }
-        public void RemoveListener<T>(string key,UnityAction<T> handle)
-        {
-            receiver.RemoveListener<T>(key,handle);
+            receiver.AddDelegate(key, handle);
         }
         public void RemoveListener(string key, UnityAction handle)
         {
-            receiver.RemoveListener(key, handle);
+            receiver.RemoveDelegate(key, handle);
         }
+        public void AddListener<T>(string key,UnityAction<T> handle)
+        {
+            receiver.AddDelegate(key, handle);
+        }
+        public void RemoveListener<T>(string key,UnityAction<T> handle)
+        {
+            receiver.RemoveDelegate(key,handle);
+        }
+
         public void RemoveAllListener(string key)
         {
-            receiver.RemoveAllListener(key);
+            receiver.RemoveAllDelegate(key);
+        }
+
+        public void NotifyObserver(string key, float delay = 0)
+        {
+            Message message = Message.Allocate(key, delay);
+
+            if (message.Delay == 0)
+            {
+                sender.SendMessage(message);
+                message.Release();
+            }
+            else if (message.Delay < 0 || message.Delay > 0)
+            {
+                delyMessages.Add(message);
+            }
         }
         public void NotifyObserver<T>(string key,T data,float delay = 0)
         {
@@ -97,9 +113,9 @@ namespace MessageSystem
                 delyMessages.Add(message);
             }
         }
-        public void NotifyObserver(string key,float delay = 0)
+        public void NotifyObserver<T,S>(string key, T datat, S datas, float delay = 0)
         {
-            Message message = Message.Allocate(key, delay);
+            Message<T,S> message = Message<T,S>.Allocate(key, datat,datas, delay);
 
             if (message.Delay == 0)
             {
@@ -111,5 +127,6 @@ namespace MessageSystem
                 delyMessages.Add(message);
             }
         }
+        
     }
 }

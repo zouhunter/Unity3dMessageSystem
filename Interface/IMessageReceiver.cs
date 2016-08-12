@@ -10,8 +10,8 @@ namespace MessageSystem.Interface
 {
     public interface IMessageReceiver
     {
-        void AddListener<T>(string key, UnityAction<T> handle);
-        void RemoveListener<T>(string key,UnityAction<T> handle);
-        void RemoveAllListener(string key);
+        void AddDelegate(string key, Delegate handle);
+        void RemoveDelegate(string key, Delegate handle);
+        void RemoveAllDelegate(string key);
     }
 }

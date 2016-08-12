@@ -20,4 +20,9 @@ namespace MessageSystem.Interface
     {
         T Data { get; set; }
     }
+    public interface IMessage<T,S> : IMessage
+    {
+        T DataT { get; set; }
+        S DataS { get; set; }
+    }
 }
