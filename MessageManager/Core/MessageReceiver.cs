@@ -11,14 +11,14 @@ namespace MessageSystem.Core
 {
     public class MessageReceiver: IMessageReceiver
     {
-        MessageManager manager;
+        MessageHolder holder;
         Dictionary<string, Delegate> NeedHandle
         {
-            get { return manager.m_needHandle; }
+            get { return holder.m_needHandle; }
         }
-        public MessageReceiver(MessageManager manager)
+        public MessageReceiver(MessageHolder holder)
         {
-            this.manager = manager;
+            this.holder = holder;
         }
         public void AddDelegate(string key, Delegate handle)
         {

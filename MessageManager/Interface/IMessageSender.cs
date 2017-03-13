@@ -11,5 +11,7 @@ namespace MessageSystem.Interface
     public interface IMessageSender
     {
         void SendMessage(IMessage rMessage);
+        void SendMessage<T>(IMessage<T> rMessage);
+        void SendMessage<T,S>(IMessage<T,S> rMessage);
     }
 }
